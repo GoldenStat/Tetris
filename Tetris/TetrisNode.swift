@@ -16,10 +16,11 @@ class TetrisNode: SKSpriteNode {
 		[[1,2,3,4,],[1],[]],
 		[[1,2,3,4,],[2],[]],
 		[[1,2,3,4,],[3],[]],
-		[[1,2,3,4,],[4],[]]
+		[[1,2,3,4,],[4],[]],
+		[[2], [1,2,3],[2]]
 	]
 	
-	let tetrisColors : [UIColor] = [.red, .green, .yellow, .blue, .white]
+	let tetrisColors : [UIColor] = [.red, .green, .yellow, .blue, .white, .brown]
 	
 	var numberOfTypes : Int {
 		get { return tetrisTypes.count }
@@ -37,9 +38,12 @@ class TetrisNode: SKSpriteNode {
 				addChild(block)
 			}
 		}
-		physicsBody = SKPhysicsBody(bodies: children.flatMap {$0.physicsBody})
+		let blockBodies = children.flatMap {$0.physicsBody}
+		physicsBody = SKPhysicsBody(bodies: blockBodies)
 		physicsBody?.isDynamic = true
-		name = "moving"
+		physicsBody?.restitution = 1.0
+		physicsBody?.usesPreciseCollisionDetection = true
+		name = "movingTetrisTile"
 		let moveDown = SKAction.move(by: CGVector(dx: 0.0, dy: -200.0), duration: 0.5)
 		let moveAlwaysDown = SKAction.repeatForever(moveDown)
 		run(moveAlwaysDown)

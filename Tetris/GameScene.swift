@@ -10,16 +10,13 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
-    
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    
+	
     override func didMove(to view: SKView) {
-		physicsWorld.contactDelegate = self
 		anchorPoint = CGPoint(x: 0, y: 0)
 		physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
 		physicsWorld.gravity = CGVector(dx: 0, dy: 0)
 		createTetris()
+		physicsWorld.contactDelegate = self
     }
 	
 	func createTetris() {
@@ -33,18 +30,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 	}
 	
 	func didBegin(_ contact: SKPhysicsContact) {
-		if contact.bodyA.node?.name == "movingTetrisTile" {
-			collisionBetween(tetrisTile: contact.bodyA.node!, object: contact.bodyB.node!)
-		} else if contact.bodyB.node?.name == "structure" {
-			collisionBetween(tetrisTile: contact.bodyB.node!, object: contact.bodyA.node!)
+		if let tetrisTile = contact.bodyA.node as? TetrisNode {
+			collision(tetrisTile: tetrisTile, object: contact.bodyB.node!)
 		}
+		else {
+			collision(tetrisTile: contact.bodyB.node as! TetrisNode, object: contact.bodyA.node!)
+		}
+		
 	}
 	
-	func collisionBetween(tetrisTile: TetrisNode, object: SKNode) {
+	fileprivate func deleteTetrisTile(_ tetrisTile: TetrisNode) {
 		let blocks = tetrisTile.children
 		for block in blocks {
-			block.physicsBody?.isDynamic = false
+			block.move(toParent: self)
 		}
+		
+		tetrisTile.removeFromParent()
+	}
+	
+	func collision(tetrisTile: TetrisNode, object: SKNode) {
+		deleteTetrisTile(tetrisTile)
+		if let tile = object as? TetrisNode {
+			deleteTetrisTile(tile)
+		}
+		createTetris()
 	}
 	
     func touchDown(atPoint pos : CGPoint) {
@@ -57,7 +66,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-		createTetris()
+		
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -71,14 +80,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-//		for tetris in children.flatMap({ $0 as? TetrisNode }) {
-//			if tetris.position.y <= 64 {
-//				tetris.physicsBody?.isDynamic = false
-//				tetris.physicsBody = nil
-//				tetris.removeAllActions()
-//			}
-//		}
-//		_ = children.filter({$0.name == "moving"}).map({$0.name = "structure"})
+
     }
 }
