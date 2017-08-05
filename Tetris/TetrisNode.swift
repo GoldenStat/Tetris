@@ -43,7 +43,6 @@ class TetrisNode: SKSpriteNode {
 		physicsBody?.isDynamic = true
 		physicsBody?.restitution = 1.0
 		physicsBody?.usesPreciseCollisionDetection = true
-		name = "movingTetrisTile"
 		let moveDown = SKAction.move(by: CGVector(dx: 0.0, dy: -200.0), duration: 0.5)
 		let moveAlwaysDown = SKAction.repeatForever(moveDown)
 		run(moveAlwaysDown)

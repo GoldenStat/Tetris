@@ -29,13 +29,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		
 	}
 	
-	func didBegin(_ contact: SKPhysicsContact) {
-		if let tetrisTile = contact.bodyA.node as? TetrisNode {
-			collision(tetrisTile: tetrisTile, object: contact.bodyB.node!)
-		}
-		else {
-			collision(tetrisTile: contact.bodyB.node as! TetrisNode, object: contact.bodyA.node!)
-		}
+	func createBlock() {
+		let block = Block()
+		block.prepare()
+		let colors : [UIColor] = [.red, .green, .white, .yellow, .gray]
+		block.color = colors[GKRandomSource.sharedRandom().nextInt(upperBound: 5)]
+		block.position = CGPoint(x: size.width / 2.0 , y: size.height - Block.const().size * 2.5 )
+		let moveBlock = SKAction.move(by: CGVector(dx: 0.0, dy: -32.0), duration: 0.1)
+		block.run(SKAction.repeatForever(moveBlock))
+		addChild(block)
+		block.physicsBody!.contactTestBitMask = block.physicsBody!.collisionBitMask
 		
 	}
 	
@@ -43,17 +46,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 		let blocks = tetrisTile.children
 		for block in blocks {
 			block.move(toParent: self)
+			block.physicsBody?.isDynamic = true
 		}
-		
 		tetrisTile.removeFromParent()
-	}
-	
-	func collision(tetrisTile: TetrisNode, object: SKNode) {
-		deleteTetrisTile(tetrisTile)
-		if let tile = object as? TetrisNode {
-			deleteTetrisTile(tile)
-		}
-		createTetris()
 	}
 	
     func touchDown(atPoint pos : CGPoint) {
