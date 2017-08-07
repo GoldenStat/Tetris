@@ -69,14 +69,29 @@ class GameScene: SKScene {
 		if let location = touches.first?.location(in: self) {
 			if let lastPos = lastTouchedLocation {
 				
-				let dx = CGFloat(Int((location.x - lastPos.x) / grid.dx)) * grid.dx
-//				let dy = CGFloat(Int((location.y - lastPos.y) / grid.dy)) * grid.dy
-				let newPos = movingTile.position.applying(CGAffineTransform(translationX: dx, y: 0))
+				var dx = Int((location.x - lastPos.x) / grid.dx)
+				var dy = Int((location.y - lastPos.y) / grid.dy)
 				
-				if dx > 0 && !collisionWithBlock(inDir: .right) {
+				
+				if dx > 0 {
+					while !collisionWithBlockOrFrame(in: .right) && dx > 0 {
+						let newPos = movingTile.position.applying(CGAffineTransform(translationX: grid.dx, y: 0))
 						movingTile.position = newPos
-				} else if dx < 0 && !collisionWithBlock(inDir: .left) {
+						dx -= 1
+					}
+				} else if dx < 0 {
+					while !collisionWithBlockOrFrame(in: .left) && dx < 0 {
+						let newPos = movingTile.position.applying(CGAffineTransform(translationX: -grid.dx, y: 0))
 						movingTile.position = newPos
+						dx += 1
+					}
+				} else if dy < 0 {
+					while !collisionWithBlockOrFrame(in: .down) && dy < 0 {
+						let newPos = movingTile.position.applying(CGAffineTransform(translationX: 0, y: -grid.dy))
+						movingTile.position = newPos
+						dy += 1
+					}
+					
 				}
 				
 				
@@ -97,15 +112,15 @@ class GameScene: SKScene {
 		get { return self.children.filter({!$0.isEqual(movingTile)}) }
 	}
 	
-	func collisionWithBlockOrFrame() -> Bool {
-		return (collisionWithFrame() || collisionWithBlock(inDir: .down))
+	func collisionWithBlockOrFrame(in dir: Direction) -> Bool {
+		return (collisionWithFrame(in: dir) || collisionWithBlock(in: dir))
 	}
 	
 	enum Direction {
 		case down,left,right
 	}
 	
-	func collisionWithBlock(inDir: Direction) -> Bool {
+	func collisionWithBlock(in dir: Direction) -> Bool {
 		let movingBlocks = movingTile.children
 		
 		for block in movingBlocks {
@@ -114,12 +129,13 @@ class GameScene: SKScene {
 			let blockCol = grid.col(from: globalPos)
 			
 			for staleBlock in staleBlocks {
-				let staleBlockRow = grid.row(from: staleBlock.position)
-				let staleBlockCol = grid.col(from: staleBlock.position)
+				let checkPos = movingTile.convert(staleBlock.position, to: self)
+				let staleBlockRow = grid.row(from: checkPos)
+				let staleBlockCol = grid.col(from: checkPos)
 				
 				var direction: [Int]
 				
-				switch inDir {
+				switch dir {
 				case .down:
 					direction = [0,1]
 				case .left:
@@ -137,16 +153,23 @@ class GameScene: SKScene {
 	}
 	
 	
-	func collisionWithFrame () -> Bool {
+	func collisionWithFrame(in dir: Direction) -> Bool {
 		let movingBlocks = movingTile.children
+		var frameHit = false
+		
 		for block in movingBlocks {
 			let globalPos = movingTile.convert(block.position, to: self)
-			let blockHitFrame = globalPos.y <= view!.frame.minY + grid.cellHeight
-			
-			if blockHitFrame {
+			switch dir {
+			case .left:
+				frameHit = globalPos.x <= grid.cellWidth
+			case .right:
+				frameHit = globalPos.x + grid.cellWidth >= size.width
+			case .down:
+				frameHit = globalPos.y <= grid.cellHeight
+			}
+			if frameHit {
 				return true
 			}
-			
 		}
 		return false
 	}
@@ -157,7 +180,7 @@ class GameScene: SKScene {
 		if elapsedTime > timeCycle {
 			elapsedTime = 0
 			cycles += 1
-			if collisionWithBlockOrFrame() {
+			if collisionWithBlockOrFrame(in: .down) {
 				deleteTetrisTile()
 				createTetris()
 			} else {
