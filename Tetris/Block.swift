@@ -11,20 +11,10 @@ import SpriteKit
 
 class Block: SKSpriteNode {
 	
-	struct const {
-		let size : CGFloat = 32.0
-	}
-	
-	func prepare() {
+	func prepare(_ grid: TetrisGrid) {
 		
-		size = CGSize(width: const().size, height: const().size)
-		
-		physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: const().size, height: const().size))
-		physicsBody?.allowsRotation = false
-		physicsBody?.affectedByGravity = false
-		physicsBody?.isDynamic = false
-		physicsBody?.pinned = true 
-		
+		size = CGSize(width: grid.cellWidth, height: grid.cellHeight)
+				
 	}
 	
 }

@@ -9,47 +9,54 @@
 import SpriteKit
 import GameplayKit
 
-class GameScene: SKScene, SKPhysicsContactDelegate {
+class GameScene: SKScene {
+	
+	var movingTile: TetrisNode!
+	var elapsedTime: Int = 0
+	let timeCycle = 2
+	let grid = TetrisGrid()
+	var cycles = 0
+	
+	// pointers for later
+	var previewWindow: UIView?
+	var nextTile: TetrisNode?
+	var walls: SKSpriteNode?
+	var score: Int = 0
 	
     override func didMove(to view: SKView) {
-		anchorPoint = CGPoint(x: 0, y: 0)
-		physicsBody = SKPhysicsBody(edgeLoopFrom: frame)
+		grid.prepare(for: view.bounds)
+		anchorPoint = CGPoint(x: 0, y: 0)		
 		physicsWorld.gravity = CGVector(dx: 0, dy: 0)
 		createTetris()
-		physicsWorld.contactDelegate = self
-    }
+	}
+	
+	fileprivate func centerTileAtTop(_ tetris: TetrisNode) {
+		let topCenter = grid.nearest(point: CGPoint(x: size.width / 2.0 , y: size.height - grid.cellHeight * 2 ))
+		let pointAdjustedForSKNodeCenter = CGPoint(x: topCenter.x - grid.cellWidth / 2.0, y: topCenter.y - grid.cellHeight / 2.0)
+		tetris.position = pointAdjustedForSKNodeCenter
+	}
 	
 	func createTetris() {
 		let randomTile = GKRandomSource.sharedRandom().nextInt(upperBound: TetrisNode().numberOfTypes)
 		let tetris = TetrisNode()
-		tetris.create(tile: randomTile)
-		tetris.position = CGPoint(x: size.width / 2.0 , y: size.height - Block.const().size * 2.5 )
+		tetris.create(tile: randomTile, for: grid)
+		centerTileAtTop(tetris)
 		addChild(tetris)
-		tetris.physicsBody!.contactTestBitMask = tetris.physicsBody!.collisionBitMask
-		
-	}
-	
-	func createBlock() {
-		let block = Block()
-		block.prepare()
-		let colors : [UIColor] = [.red, .green, .white, .yellow, .gray]
-		block.color = colors[GKRandomSource.sharedRandom().nextInt(upperBound: 5)]
-		block.position = CGPoint(x: size.width / 2.0 , y: size.height - Block.const().size * 2.5 )
-		let moveBlock = SKAction.move(by: CGVector(dx: 0.0, dy: -32.0), duration: 0.1)
-		block.run(SKAction.repeatForever(moveBlock))
-		addChild(block)
-		block.physicsBody!.contactTestBitMask = block.physicsBody!.collisionBitMask
-		
+		movingTile = tetris
 	}
 	
 	fileprivate func deleteTetrisTile(_ tetrisTile: TetrisNode) {
 		let blocks = tetrisTile.children
 		for block in blocks {
 			block.move(toParent: self)
-			block.physicsBody?.isDynamic = true
 		}
 		tetrisTile.removeFromParent()
 	}
+	
+	func move(movingTile: TetrisNode) {
+		movingTile.position.y -= grid.dy // move Tetris Tile Down
+	}
+	
 	
     func touchDown(atPoint pos : CGPoint) {
     }
@@ -72,9 +79,42 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
     }
-    
+	
+	func collisionWithBlockOrFrame(tile: TetrisNode) -> Bool {
+		let movingBlocks = tile.children
+		let staleBlocks = self.children.filter({!$0.isEqual(tile)})
+		
+		for block in movingBlocks {
+			let globalPos = tile.convert(block.position, to: self)
+			let blockHitFrame = globalPos.y <= view!.frame.minY + grid.cellHeight
+			let blockRow = grid.row(from: globalPos)
+			
+			if blockHitFrame {
+				return true
+			} else {
+				for staleBlock in staleBlocks {
+					let staleBlockRow = grid.row(from: staleBlock.position)
+					let blockHitBlock = staleBlockRow + 1 == blockRow && grid.col(from: staleBlock.position) == grid.col(from: globalPos)
+					if blockHitBlock {
+						return blockHitBlock
+					}
+				}
+			}
+		}
+		
+		return false
+	}
     
     override func update(_ currentTime: TimeInterval) {
-
+		elapsedTime += 1
+		if elapsedTime > timeCycle {
+			elapsedTime = 0
+			cycles += 1
+			move(movingTile: movingTile)
+			if collisionWithBlockOrFrame(tile: movingTile) {
+				deleteTetrisTile(movingTile)
+				createTetris()
+			}
+		}
     }
 }

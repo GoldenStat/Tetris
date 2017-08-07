@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4117DE271F35C7D100D9E8CD /* TetrisGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4117DE261F35C7D100D9E8CD /* TetrisGrid.swift */; };
 		416207E81F2F98F9003A5081 /* TetrisNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416207E71F2F98F9003A5081 /* TetrisNode.swift */; };
 		416786511F2F5DF100AC1EF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416786501F2F5DF100AC1EF8 /* AppDelegate.swift */; };
 		416786531F2F5DF100AC1EF8 /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 416786521F2F5DF100AC1EF8 /* GameScene.sks */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4117DE261F35C7D100D9E8CD /* TetrisGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrisGrid.swift; sourceTree = "<group>"; };
 		416207E71F2F98F9003A5081 /* TetrisNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TetrisNode.swift; sourceTree = "<group>"; };
 		4167864D1F2F5DF100AC1EF8 /* Tetris.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tetris.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		416786501F2F5DF100AC1EF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -62,14 +64,15 @@
 		4167864F1F2F5DF100AC1EF8 /* Tetris */ = {
 			isa = PBXGroup;
 			children = (
+				4117DE261F35C7D100D9E8CD /* TetrisGrid.swift */,
+				416786681F2F5F8400AC1EF8 /* Block.swift */,
+				416207E71F2F98F9003A5081 /* TetrisNode.swift */,
+				416786561F2F5DF100AC1EF8 /* GameScene.swift */,
+				4167865A1F2F5DF100AC1EF8 /* Main.storyboard */,
+				416786581F2F5DF100AC1EF8 /* GameViewController.swift */,
+				4167865D1F2F5DF100AC1EF8 /* Assets.xcassets */,
 				416786501F2F5DF100AC1EF8 /* AppDelegate.swift */,
 				416786521F2F5DF100AC1EF8 /* GameScene.sks */,
-				416786561F2F5DF100AC1EF8 /* GameScene.swift */,
-				416207E71F2F98F9003A5081 /* TetrisNode.swift */,
-				416786581F2F5DF100AC1EF8 /* GameViewController.swift */,
-				416786681F2F5F8400AC1EF8 /* Block.swift */,
-				4167865A1F2F5DF100AC1EF8 /* Main.storyboard */,
-				4167865D1F2F5DF100AC1EF8 /* Assets.xcassets */,
 				4167865F1F2F5DF100AC1EF8 /* LaunchScreen.storyboard */,
 				416786621F2F5DF100AC1EF8 /* Info.plist */,
 			);
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4117DE271F35C7D100D9E8CD /* TetrisGrid.swift in Sources */,
 				416786571F2F5DF100AC1EF8 /* GameScene.swift in Sources */,
 				416207E81F2F98F9003A5081 /* TetrisNode.swift in Sources */,
 				416786691F2F5F8400AC1EF8 /* Block.swift in Sources */,
