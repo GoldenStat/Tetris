@@ -13,7 +13,7 @@ class GameScene: SKScene {
 	
 	var movingTile: TetrisNode!
 	var elapsedTime: Int = 0
-	let timeCycle = 20
+	let timeCycle = 1
 	let grid = TetrisGrid()
 	var cycles = 0
 	
@@ -24,7 +24,7 @@ class GameScene: SKScene {
 	var score: Int = 0
 	
     override func didMove(to view: SKView) {
-		grid.prepare(for: view.bounds)
+		grid.prepare(for: size)
 		anchorPoint = CGPoint(x: 0, y: 0)		
 		physicsWorld.gravity = CGVector(dx: 0, dy: 0)
 		createTetris()
@@ -129,7 +129,8 @@ class GameScene: SKScene {
 			let blockCol = grid.col(from: globalPos)
 			
 			for staleBlock in staleBlocks {
-				let checkPos = movingTile.convert(staleBlock.position, to: self)
+//				let checkPos = movingTile.convert(staleBlock.position, to: self)
+				let checkPos = staleBlock.position
 				let staleBlockRow = grid.row(from: checkPos)
 				let staleBlockCol = grid.col(from: checkPos)
 				
@@ -137,14 +138,15 @@ class GameScene: SKScene {
 				
 				switch dir {
 				case .down:
-					direction = [0,1]
+					direction = [0,-1]
 				case .left:
 					direction = [-1,0]
 				case .right:
 					direction = [1,0]
 				}
 				
-				if staleBlockRow + direction[0] == blockRow && staleBlockCol + direction[1] == blockCol {
+				if staleBlockRow == blockRow + direction[1]  &&
+					staleBlockCol == blockCol + direction[0] {
 					return true
 				}
 			}

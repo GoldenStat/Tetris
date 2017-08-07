@@ -10,8 +10,8 @@ import UIKit
 import SpriteKit
 
 class TetrisGrid: SKSpriteNode {
-	let rows : CGFloat = 16
-	let columns : CGFloat = 12
+	let rows : CGFloat = 32
+	let columns : CGFloat = 20
 	var cellWidth : CGFloat!
 	var cellHeight : CGFloat!
 	
@@ -23,11 +23,9 @@ class TetrisGrid: SKSpriteNode {
 		get { return cellHeight }
 	}
 	
-	func prepare(for rect: CGRect) {
-		cellWidth = CGFloat(Int(rect.width / columns))
-		cellHeight = CGFloat(Int(rect.height / rows))
-		//cellWidth = CGFloat(32)
-		//cellHeight = CGFloat(32)
+	func prepare(for size: CGSize) {
+		cellWidth = CGFloat(Int(size.width / columns))
+		cellHeight = CGFloat(Int(size.height / rows))
 	}
 	
 	func nearest(point: CGPoint) -> CGPoint {
