@@ -160,8 +160,7 @@ class GameScene: SKScene {
 		case .running:
 			if let _ = lastTouchedLocation, let endLocation = touches.first?.location(in: self) {
 				if endLocation.equalTo(lastTouchedLocation!) {
-					let rotate = SKAction.rotate(byAngle: CGFloat.pi / 2.0, duration: 0.001)
-					movingTile.run(rotate)
+					rotate()
 				}
 			}
 		}
@@ -189,24 +188,52 @@ class GameScene: SKScene {
 		case down,left,right, rotate
 	}
 	
-	func rotate(to dir: Direction) {
-		switch dir {
-		case .right:
-			let rotateRight = SKAction.rotate(byAngle: CGFloat.pi / 2.0, duration: 0.001)
-			movingTile.run(rotateRight) { [ weak movingTile, grid ] in
-				if let pos = movingTile?.position {
-					movingTile?.position = grid.nearest(point: pos)
+	func pointInFrame(at point: CGPoint) -> Bool {
+		return self.frame.contains(point)
+	}
+	
+	func collision(at point: CGPoint) -> Bool {
+		
+		for staleBlock in staleBlocks as! [Block] {
+			if staleBlock.frame.contains(point) {
+				return true
+			}
+		}
+		
+		return false
+	}
+	
+	func rotate() {
+		var rotationIsValid = true
+		let blocksToRotate = movingTile.children.filter { $0.isKind(of: Block.self) }.map { $0 as! Block }
+		var newPositions = [ Block : CGPoint ]()
+		
+		print ("executing rotation:")
+		
+		// check if new Pos is rotatable to
+		for block in blocksToRotate {
+			
+			let rotatedPosition = movingTile.rotatedPosition(for: block, in: grid)
+			
+			let globalRotatedPosition = movingTile.convert(rotatedPosition, to: self)
+			
+			// check against scene coordinates
+			if !pointInFrame(at: globalRotatedPosition) || collision(at: globalRotatedPosition) {
+				rotationIsValid = false
+				break
+			} else {
+				// update tile coordinates
+				newPositions[block] = rotatedPosition
+			}
+		}
+		
+		// Rotate
+		if rotationIsValid {
+			for block in blocksToRotate {
+				if let newPosition = newPositions[block] {
+					block.position = newPosition
 				}
 			}
-		case .left:
-			let rotateLeft = SKAction.rotate(byAngle: -CGFloat.pi / 2.0, duration: 0.001)
-			movingTile.run(rotateLeft) { [ weak movingTile, grid ] in
-				if let pos = movingTile?.position {
-					movingTile?.position = grid.nearest(point: pos)
-				}
-			}
-		default:
-			break
 		}
 	}
 	
@@ -222,7 +249,7 @@ class GameScene: SKScene {
 		case .right:
 			direction = [1,0]
 		case .rotate:
-			rotate(to: .right)
+			rotate()
 			direction = [0,0]
 		}
 		
@@ -242,7 +269,7 @@ class GameScene: SKScene {
 				if staleBlockRow == blockRow + direction[1]  &&
 					staleBlockCol == blockCol + direction[0] {
 					if dir == .rotate {
-						rotate(to: .left)
+						rotate()
 					}
 					return true
 				}
